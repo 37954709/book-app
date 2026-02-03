@@ -15,11 +15,11 @@ import { Upload, Search } from 'lucide-react'
 
 interface BookFormProps {
   book?: Book
-  onSubmit: (data: FormData) => Promise<void>
+  onSubmit: (data: Record<string, unknown>) => Promise<void>
   isLoading?: boolean
 }
 
-interface FormData {
+interface BookFormData {
   title: string
   author: string
   publisher: string
@@ -47,9 +47,9 @@ export function BookForm({ book, onSubmit, isLoading }: BookFormProps) {
   const [isCheckingCover, setIsCheckingCover] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
-  const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({})
+  const [errors, setErrors] = useState<Partial<Record<keyof BookFormData, string>>>({})
 
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<BookFormData>({
     title: book?.title || '',
     author: book?.author || '',
     publisher: book?.publisher || '',
@@ -208,7 +208,7 @@ export function BookForm({ book, onSubmit, isLoading }: BookFormProps) {
   }
 
   const validate = (): boolean => {
-    const newErrors: Partial<Record<keyof FormData, string>> = {}
+    const newErrors: Partial<Record<keyof BookFormData, string>> = {}
 
     if (!formData.title.trim()) {
       newErrors.title = 'タイトルは必須です'
