@@ -1,0 +1,104 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ユーザープロフィール（Supabase Auth と連携）
+model Profile {
+  id        String   @id @db.Uuid // Supabase Auth の user.id と一致
+  email     String   @unique
+  name      String?
+  avatarUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // リレーション
+  books Book[]
+  tags  Tag[]
+}
+
+// 読書状態
+// WISHLIST: 欲しい本
+// UNREAD: 未読
+// READING: 読書中
+// FINISHED: 読了
+model Book {
+  id          Int       @id @default(autoincrement())
+  title       String
+  author      String?
+  publisher   String?
+  isbn        String?
+
+  // 読書状態
+  status      String    @default("UNREAD") // WISHLIST, UNREAD, READING, FINISHED
+  owned       Boolean   @default(false)    // 所持しているか
+
+  // 日付
+  purchaseDate  DateTime?  // 購入日
+  finishedDate  DateTime?  // 読了日
+
+  // 評価・感想
+  rating      Int?      // 1-5
+  memo        String?   // 短文メモ
+  review      String?   // 長文感想
+
+  // 表紙画像
+  coverUrl    String?   // Open Library等からの外部URL
+  coverPath   String?   // Supabase Storageのパス
+
+  // ウィッシュリスト用フィールド
+  price             Int?      // 価格（円）
+  plannedPurchaseDate DateTime? // 購入予定日
+  purchaseUrl       String?   // 購入先URL
+  priority          Int       @default(2) // 優先度: 1=高, 2=中, 3=低
+
+  // ユーザー
+  userId    String   @db.Uuid
+  user      Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // タイムスタンプ
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // リレーション
+  tags        BookTag[]
+
+  @@index([userId])
+}
+
+model Tag {
+  id        Int       @id @default(autoincrement())
+  name      String
+  createdAt DateTime  @default(now())
+
+  // ユーザー
+  userId    String   @db.Uuid
+  user      Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // リレーション
+  books     BookTag[]
+
+  @@unique([userId, name]) // 同じユーザー内でタグ名はユニーク
+  @@index([userId])
+}
+
+// 多対多の中間テーブル
+model BookTag {
+  id        Int      @id @default(autoincrement())
+  bookId    Int
+  tagId     Int
+  createdAt DateTime @default(now())
+
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([bookId, tagId])
+}
