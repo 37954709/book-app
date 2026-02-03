@@ -27,6 +27,8 @@ function BookList() {
       setIsLoading(true)
       try {
         const params = new URLSearchParams(searchParams.toString())
+        // 常にページ1から開始
+        params.set('page', '1')
         const res = await fetch(`/api/books?${params.toString()}`)
         const data = await res.json()
 
