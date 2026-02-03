@@ -229,7 +229,7 @@ export function BookForm({ book, onSubmit, isLoading }: BookFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!validate()) return
-    await onSubmit(formData)
+    await onSubmit(formData as unknown as Record<string, unknown>)
   }
 
   const isWishlist = formData.status === BookStatus.WISHLIST
