@@ -23,6 +23,10 @@ model Profile {
   // リレーション
   books Book[]
   tags  Tag[]
+
+  // フォロー関係
+  followers  Follow[] @relation("Following")  // この人をフォローしている人々
+  following  Follow[] @relation("Follower")   // この人がフォローしている人々
 }
 
 // 読書状態
@@ -109,4 +113,19 @@ model BookTag {
   tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@unique([bookId, tagId])
+}
+
+// フォロー関係（片方向）
+model Follow {
+  id          Int      @id @default(autoincrement())
+  followerId  String   @db.Uuid  // フォローする人
+  followingId String   @db.Uuid  // フォローされる人
+  createdAt   DateTime @default(now())
+
+  follower    Profile  @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following   Profile  @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])  // 重複フォロー防止
+  @@index([followerId])
+  @@index([followingId])
 }

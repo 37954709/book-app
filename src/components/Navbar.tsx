@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { BookOpen, PlusCircle, LayoutDashboard, Download, Upload, LogOut, User, Menu, X } from 'lucide-react'
+import { BookOpen, PlusCircle, LayoutDashboard, Download, Upload, LogOut, User, Menu, X, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useRef, useState } from 'react'
 import { useAuth } from './AuthProvider'
@@ -70,6 +70,7 @@ export function Navbar() {
     { href: '/', icon: BookOpen, label: '本一覧' },
     { href: '/books/new', icon: PlusCircle, label: '本を追加' },
     { href: '/dashboard', icon: LayoutDashboard, label: 'ダッシュボード' },
+    { href: '/following', icon: Users, label: 'フォロー' },
   ]
 
   return (
