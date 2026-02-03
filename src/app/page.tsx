@@ -16,7 +16,7 @@ function BookList() {
   const [groupMode, setGroupMode] = useState<'status' | 'category'>('status')
   const [pagination, setPagination] = useState({
     page: 1,
-    limit: 20,
+    limit: 10,
     total: 0,
     totalPages: 0,
     hasMore: false,
@@ -189,7 +189,7 @@ function BookList() {
 
       {isLoading ? (
         <div className={viewMode === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4' : 'space-y-4'}>
-          {[...Array(20)].map((_, i) => (
+          {[...Array(10)].map((_, i) => (
             <div key={i} className="animate-pulse">
               <div className="bg-gray-200 rounded-lg aspect-[2/3] mb-2"></div>
               <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>

@@ -47,7 +47,7 @@ export default function EditBookPage() {
         throw new Error(error.error || 'Failed to update book')
       }
 
-      router.push(`/books/${id}`)
+      router.push('/')
     } catch (error) {
       console.error('Error updating book:', error)
       alert(error instanceof Error ? error.message : '更新に失敗しました')
