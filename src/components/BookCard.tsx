@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { Book, BookStatus, Priority } from '@/types/book'
+import { Book, BookStatus, BookCategory, Priority } from '@/types/book'
 import { BookCover } from './BookCover'
 import { StatusBadge } from './StatusBadge'
+import { CategoryBadge } from './CategoryBadge'
 import { StarRating } from './StarRating'
 import { PriorityBadge } from './PriorityBadge'
 import { TagBadge } from './TagBadge'
@@ -44,7 +45,12 @@ export function BookCard({ book, viewMode, onPurchase }: BookCardProps) {
             </p>
           )}
           <div className="mt-3 flex flex-col items-center gap-1.5">
-            <StatusBadge status={book.status as BookStatus} size="sm" />
+            <div className="flex flex-wrap justify-center gap-1">
+              <StatusBadge status={book.status as BookStatus} size="sm" />
+              {book.category && (
+                <CategoryBadge category={book.category as BookCategory} size="sm" />
+              )}
+            </div>
             {isWishlist && (
               <PriorityBadge priority={book.priority as Priority} size="sm" />
             )}
@@ -89,7 +95,12 @@ export function BookCard({ book, viewMode, onPurchase }: BookCardProps) {
           <h3 className="font-semibold text-gray-800 group-hover:text-primary-600 transition-colors line-clamp-1">
             {book.title}
           </h3>
-          <StatusBadge status={book.status as BookStatus} size="sm" />
+          <div className="flex gap-1 flex-shrink-0">
+            <StatusBadge status={book.status as BookStatus} size="sm" />
+            {book.category && (
+              <CategoryBadge category={book.category as BookCategory} size="sm" />
+            )}
+          </div>
         </div>
         {book.author && (
           <p className="text-sm text-gray-500 mt-0.5">{book.author}</p>

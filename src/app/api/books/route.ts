@@ -37,6 +37,12 @@ export async function GET(request: NextRequest) {
       where.status = status
     }
 
+    // カテゴリフィルタ
+    const category = searchParams.get('category')
+    if (category && category !== 'ALL') {
+      where.category = category
+    }
+
     // 所持フィルタ
     if (owned !== null && owned !== 'ALL') {
       where.owned = owned === 'true'
@@ -105,6 +111,7 @@ export async function POST(request: NextRequest) {
       isbn,
       status = BookStatus.UNREAD,
       owned = false,
+      category,
       purchaseDate,
       finishedDate,
       rating,
@@ -142,6 +149,7 @@ export async function POST(request: NextRequest) {
         isbn: isbn?.trim() || null,
         status,
         owned,
+        category: category || null,
         purchaseDate: purchaseDate ? new Date(purchaseDate) : null,
         finishedDate: finishedDate ? new Date(finishedDate) : (status === BookStatus.FINISHED ? new Date() : null),
         rating: rating || null,

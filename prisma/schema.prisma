@@ -41,6 +41,9 @@ model Book {
   status      String    @default("UNREAD") // WISHLIST, UNREAD, READING, FINISHED
   owned       Boolean   @default(false)    // 所持しているか
 
+  // カテゴリ
+  category    String?   // NOVEL, MANGA, BUSINESS, TECH, PHILOSOPHY, SELFHELP, OTHER
+
   // 日付
   purchaseDate  DateTime?  // 購入日
   finishedDate  DateTime?  // 読了日

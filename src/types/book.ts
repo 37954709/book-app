@@ -17,6 +17,30 @@ export const Priority = {
 
 export type Priority = (typeof Priority)[keyof typeof Priority]
 
+// カテゴリの定義
+export const BookCategory = {
+  NOVEL: 'NOVEL',
+  MANGA: 'MANGA',
+  BUSINESS: 'BUSINESS',
+  TECH: 'TECH',
+  PHILOSOPHY: 'PHILOSOPHY',
+  SELFHELP: 'SELFHELP',
+  OTHER: 'OTHER',
+} as const
+
+export type BookCategory = (typeof BookCategory)[keyof typeof BookCategory]
+
+// カテゴリのラベル
+export const categoryLabels: Record<BookCategory, string> = {
+  NOVEL: '小説',
+  MANGA: '漫画',
+  BUSINESS: 'ビジネス',
+  TECH: '技術書',
+  PHILOSOPHY: '哲学書',
+  SELFHELP: '自己啓発',
+  OTHER: 'その他',
+}
+
 // 状態のラベル
 export const statusLabels: Record<BookStatus, string> = {
   WISHLIST: '欲しい',
@@ -47,6 +71,7 @@ export interface Book {
   isbn: string | null
   status: BookStatus
   owned: boolean
+  category: BookCategory | null
   purchaseDate: string | null
   finishedDate: string | null
   rating: number | null
@@ -71,6 +96,7 @@ export interface BookInput {
   isbn?: string
   status: BookStatus
   owned: boolean
+  category?: BookCategory
   purchaseDate?: string
   finishedDate?: string
   rating?: number
@@ -89,6 +115,7 @@ export interface BookInput {
 export interface BookFilters {
   search?: string
   status?: BookStatus | 'ALL'
+  category?: BookCategory | 'ALL'
   owned?: boolean | 'ALL'
   rating?: number | 'ALL'
   tagId?: number

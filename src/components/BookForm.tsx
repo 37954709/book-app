@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Book, BookStatus, statusLabels, priorityLabels, Tag } from '@/types/book'
+import { Book, BookStatus, BookCategory, statusLabels, priorityLabels, categoryLabels, Tag } from '@/types/book'
 import { Input } from './Input'
 import { Select } from './Select'
 import { Textarea } from './Textarea'
@@ -26,6 +26,7 @@ interface BookFormData {
   isbn: string
   status: BookStatus
   owned: boolean
+  category: BookCategory | ''
   purchaseDate: string
   finishedDate: string
   rating: number | null
@@ -56,6 +57,7 @@ export function BookForm({ book, onSubmit, isLoading }: BookFormProps) {
     isbn: book?.isbn || '',
     status: (book?.status as BookStatus) || BookStatus.UNREAD,
     owned: book?.owned ?? false,
+    category: (book?.category as BookCategory) || '',
     purchaseDate: book?.purchaseDate?.split('T')[0] || '',
     finishedDate: book?.finishedDate?.split('T')[0] || '',
     rating: book?.rating || null,
@@ -322,8 +324,8 @@ export function BookForm({ book, onSubmit, isLoading }: BookFormProps) {
         </div>
       </div>
 
-      {/* 状態・所持 */}
-      <div className="grid grid-cols-2 gap-4">
+      {/* 状態・所持・カテゴリ */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <Select
           id="status"
           name="status"
@@ -334,6 +336,20 @@ export function BookForm({ book, onSubmit, isLoading }: BookFormProps) {
             value,
             label,
           }))}
+        />
+        <Select
+          id="category"
+          name="category"
+          label="カテゴリ"
+          value={formData.category}
+          onChange={handleInputChange}
+          options={[
+            { value: '', label: '未設定' },
+            ...Object.entries(categoryLabels).map(([value, label]) => ({
+              value,
+              label,
+            })),
+          ]}
         />
         <div className="flex items-end">
           <label className="flex items-center gap-2 cursor-pointer">

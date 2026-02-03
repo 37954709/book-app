@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Input } from './Input'
 import { Select } from './Select'
 import { Button } from './Button'
-import { BookStatus, statusLabels, Tag } from '@/types/book'
+import { BookStatus, statusLabels, categoryLabels, Tag } from '@/types/book'
 import { Search, X, Grid, List, SlidersHorizontal } from 'lucide-react'
 
 interface SearchFilterProps {
@@ -21,6 +21,7 @@ export function SearchFilter({ viewMode, onViewModeChange }: SearchFilterProps) 
 
   const [search, setSearch] = useState(searchParams.get('search') || '')
   const [status, setStatus] = useState(searchParams.get('status') || 'ALL')
+  const [category, setCategory] = useState(searchParams.get('category') || 'ALL')
   const [owned, setOwned] = useState(searchParams.get('owned') || 'ALL')
   const [rating, setRating] = useState(searchParams.get('rating') || 'ALL')
   const [tagId, setTagId] = useState(searchParams.get('tagId') || '')
@@ -38,6 +39,7 @@ export function SearchFilter({ viewMode, onViewModeChange }: SearchFilterProps) 
     const params = new URLSearchParams()
     if (search) params.set('search', search)
     if (status && status !== 'ALL') params.set('status', status)
+    if (category && category !== 'ALL') params.set('category', category)
     if (owned && owned !== 'ALL') params.set('owned', owned)
     if (rating && rating !== 'ALL') params.set('rating', rating)
     if (tagId) params.set('tagId', tagId)
@@ -50,6 +52,7 @@ export function SearchFilter({ viewMode, onViewModeChange }: SearchFilterProps) 
   const clearFilters = () => {
     setSearch('')
     setStatus('ALL')
+    setCategory('ALL')
     setOwned('ALL')
     setRating('ALL')
     setTagId('')
@@ -66,6 +69,11 @@ export function SearchFilter({ viewMode, onViewModeChange }: SearchFilterProps) 
   const statusOptions = [
     { value: 'ALL', label: 'すべて' },
     ...Object.entries(statusLabels).map(([value, label]) => ({ value, label })),
+  ]
+
+  const categoryOptions = [
+    { value: 'ALL', label: 'すべて' },
+    ...Object.entries(categoryLabels).map(([value, label]) => ({ value, label })),
   ]
 
   const ownedOptions = [
@@ -102,7 +110,7 @@ export function SearchFilter({ viewMode, onViewModeChange }: SearchFilterProps) 
   ]
 
   const hasActiveFilters =
-    status !== 'ALL' || owned !== 'ALL' || rating !== 'ALL' || tagId !== ''
+    status !== 'ALL' || category !== 'ALL' || owned !== 'ALL' || rating !== 'ALL' || tagId !== ''
 
   return (
     <div className="bg-white rounded-lg shadow p-4 mb-6">
@@ -162,12 +170,18 @@ export function SearchFilter({ viewMode, onViewModeChange }: SearchFilterProps) 
       {/* フィルタパネル */}
       {showFilters && (
         <div className="mt-4 pt-4 border-t border-gray-200">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
             <Select
               label="状態"
               value={status}
               onChange={(e) => setStatus(e.target.value)}
               options={statusOptions}
+            />
+            <Select
+              label="カテゴリ"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              options={categoryOptions}
             />
             <Select
               label="所持"
