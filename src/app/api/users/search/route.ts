@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
 
-// GET /api/users/search - ユーザー検索
+// GET /api/users/search - ユーザー検索（ユーザーネームのみ）
 export async function GET(request: NextRequest) {
   try {
     const user = await requireAuth()
@@ -17,18 +17,13 @@ export async function GET(request: NextRequest) {
       where: {
         AND: [
           { id: { not: user.id } }, // 自分は除外
-          {
-            OR: [
-              { name: { contains: query, mode: 'insensitive' } },
-              { email: { contains: query, mode: 'insensitive' } },
-            ],
-          },
+          { name: { not: null } }, // ユーザーネームが設定されているユーザーのみ
+          { name: { contains: query, mode: 'insensitive' } }, // ユーザーネームで検索
         ],
       },
       select: {
         id: true,
         name: true,
-        email: true,
         avatarUrl: true,
         _count: {
           select: {
@@ -54,7 +49,6 @@ export async function GET(request: NextRequest) {
     const usersWithFollowStatus = users.map((u) => ({
       id: u.id,
       name: u.name,
-      email: u.email,
       avatarUrl: u.avatarUrl,
       bookCount: u._count.books,
       followerCount: u._count.followers,

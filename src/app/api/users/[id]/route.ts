@@ -16,7 +16,6 @@ export async function GET(
       select: {
         id: true,
         name: true,
-        email: true,
         avatarUrl: true,
         createdAt: true,
         _count: {
@@ -49,7 +48,6 @@ export async function GET(
     return NextResponse.json({
       id: user.id,
       name: user.name,
-      email: user.email,
       avatarUrl: user.avatarUrl,
       createdAt: user.createdAt,
       bookCount: user._count.books,

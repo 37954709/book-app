@@ -96,7 +96,6 @@ export default function FollowingPage() {
               key={user.id}
               id={user.id}
               name={user.name}
-              email={user.email}
               avatarUrl={user.avatarUrl}
               bookCount={user.bookCount}
               followerCount={user.followerCount}

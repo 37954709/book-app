@@ -7,7 +7,6 @@ import { Button } from './Button'
 interface UserCardProps {
   id: string
   name: string | null
-  email: string
   avatarUrl: string | null
   bookCount: number
   followerCount: number
@@ -21,7 +20,6 @@ interface UserCardProps {
 export function UserCard({
   id,
   name,
-  email,
   avatarUrl,
   bookCount,
   followerCount,
@@ -52,10 +50,9 @@ export function UserCard({
             <h3 className="font-semibold text-gray-800 truncate group-hover:text-primary-600 transition-colors">
               {name || 'Unknown User'}
             </h3>
-            <p className="text-sm text-gray-500 truncate">{email}</p>
           </Link>
 
-          <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+          <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
             <span className="flex items-center gap-1">
               <BookOpen size={14} />
               {bookCount}冊

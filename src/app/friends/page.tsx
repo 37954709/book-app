@@ -111,7 +111,7 @@ export default function FriendsPage() {
           type="text"
           value={query}
           onChange={handleQueryChange}
-          placeholder="名前またはメールアドレスで検索..."
+          placeholder="ユーザーネームで検索..."
           className="w-full pl-12 pr-4 py-3 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
         />
       </div>
@@ -139,7 +139,6 @@ export default function FriendsPage() {
               key={user.id}
               id={user.id}
               name={user.name}
-              email={user.email}
               avatarUrl={user.avatarUrl}
               bookCount={user.bookCount}
               followerCount={user.followerCount}

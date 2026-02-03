@@ -2,7 +2,6 @@
 export interface UserSearchResult {
   id: string
   name: string | null
-  email: string
   avatarUrl: string | null
   bookCount: number
   followerCount: number
@@ -14,7 +13,6 @@ export interface FollowingUser {
   followId: number
   id: string
   name: string | null
-  email: string
   avatarUrl: string | null
   bookCount: number
   followerCount: number
@@ -25,7 +23,6 @@ export interface FollowingUser {
 export interface UserProfile {
   id: string
   name: string | null
-  email: string
   avatarUrl: string | null
   createdAt: string
   bookCount: number

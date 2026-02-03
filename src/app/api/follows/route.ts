@@ -14,7 +14,6 @@ export async function GET() {
           select: {
             id: true,
             name: true,
-            email: true,
             avatarUrl: true,
             _count: {
               select: {
@@ -32,7 +31,6 @@ export async function GET() {
       followId: f.id,
       id: f.following.id,
       name: f.following.name,
-      email: f.following.email,
       avatarUrl: f.following.avatarUrl,
       bookCount: f.following._count.books,
       followerCount: f.following._count.followers,

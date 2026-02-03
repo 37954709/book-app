@@ -192,7 +192,6 @@ export default function UserProfilePage() {
                 <h1 className="text-2xl font-bold text-gray-800">
                   {profile.name || 'Unknown User'}
                 </h1>
-                <p className="text-gray-500">{profile.email}</p>
                 <p className="text-sm text-gray-400 mt-1 flex items-center gap-1">
                   <Calendar size={14} />
                   {formatDateJa(profile.createdAt)}から利用
