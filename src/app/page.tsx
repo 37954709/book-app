@@ -2,10 +2,10 @@
 
 import { useState, useEffect, Suspense, useCallback, useMemo } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { Book, BookStatus } from '@/types/book'
+import { Book, BookStatus, BookCategory, categoryLabels } from '@/types/book'
 import { BookCard } from '@/components/BookCard'
 import { SearchFilter } from '@/components/SearchFilter'
-import { Loader2, BookOpen } from 'lucide-react'
+import { Loader2, BookOpen, LayoutGrid } from 'lucide-react'
 import Link from 'next/link'
 
 function BookList() {
@@ -13,6 +13,7 @@ function BookList() {
   const [books, setBooks] = useState<Book[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [groupMode, setGroupMode] = useState<'status' | 'category'>('status')
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 50,
@@ -76,7 +77,9 @@ function BookList() {
 
   // 状態別のグループ化（オプション）
   const currentStatus = searchParams.get('status')
-  const groupedBooks = useMemo(
+  const currentCategory = searchParams.get('category')
+
+  const groupedBooksByStatus = useMemo(
     () =>
       currentStatus && currentStatus !== 'ALL'
         ? { [currentStatus]: books }
@@ -89,8 +92,36 @@ function BookList() {
     [books, currentStatus]
   )
 
+  const groupedBooksByCategory = useMemo(
+    () =>
+      currentCategory && currentCategory !== 'ALL'
+        ? { [currentCategory]: books }
+        : books.reduce<Record<string, Book[]>>((acc, book) => {
+            const category = book.category || 'OTHER'
+            if (!acc[category]) acc[category] = []
+            acc[category].push(book)
+            return acc
+          }, {}),
+    [books, currentCategory]
+  )
+
   const statusOrder = useMemo(
     () => [BookStatus.WISHLIST, BookStatus.READING, BookStatus.UNREAD, BookStatus.FINISHED],
+    []
+  )
+
+  const categoryOrder = useMemo(
+    () => [
+      BookCategory.FICTION,
+      BookCategory.HUMANITIES,
+      BookCategory.HISTORY,
+      BookCategory.POLITICS,
+      BookCategory.BUSINESS,
+      BookCategory.SCIENCE,
+      BookCategory.HOBBY,
+      BookCategory.MANGA,
+      BookCategory.OTHER,
+    ],
     []
   )
 
@@ -104,9 +135,57 @@ function BookList() {
     []
   )
 
+  const categoryEmojis: Record<BookCategory, string> = useMemo(
+    () => ({
+      FICTION: '📚',
+      HUMANITIES: '🤔',
+      HISTORY: '📜',
+      POLITICS: '⚖️',
+      BUSINESS: '💼',
+      SCIENCE: '🔬',
+      HOBBY: '🎨',
+      MANGA: '📕',
+      OTHER: '📖',
+    }),
+    []
+  )
+
+  const showGroupToggle = !currentStatus || currentStatus === 'ALL'
+  const groupedBooks = groupMode === 'status' ? groupedBooksByStatus : groupedBooksByCategory
+  const groupOrder = groupMode === 'status' ? statusOrder : categoryOrder
+
   return (
     <div className="animate-fade-in">
       <SearchFilter viewMode={viewMode} onViewModeChange={setViewMode} />
+
+      {/* グループ表示切替 */}
+      {showGroupToggle && books.length > 0 && (
+        <div className="mb-4 flex justify-end">
+          <div className="inline-flex rounded-lg border border-gray-300 bg-white p-1">
+            <button
+              onClick={() => setGroupMode('status')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                groupMode === 'status'
+                  ? 'bg-primary-600 text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              ステータス別
+            </button>
+            <button
+              onClick={() => setGroupMode('category')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                groupMode === 'category'
+                  ? 'bg-primary-600 text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              <LayoutGrid size={16} className="inline mr-1" />
+              カテゴリ別
+            </button>
+          </div>
+        </div>
+      )}
 
       {isLoading ? (
         <div className="flex flex-col justify-center items-center py-16">
@@ -146,20 +225,27 @@ function BookList() {
         </div>
       ) : (
         <div className="space-y-10">
-          {statusOrder.map((status) => {
-            const statusBooks = groupedBooks[status]
-            if (!statusBooks || statusBooks.length === 0) return null
+          {groupOrder.map((groupKey) => {
+            const groupBooks = groupedBooks[groupKey as string]
+            if (!groupBooks || groupBooks.length === 0) return null
 
-            const config = statusConfig[status]
+            const label =
+              groupMode === 'status'
+                ? statusConfig[groupKey as BookStatus]?.label
+                : categoryLabels[groupKey as BookCategory]
+            const emoji =
+              groupMode === 'status'
+                ? statusConfig[groupKey as BookStatus]?.emoji
+                : categoryEmojis[groupKey as BookCategory]
 
             return (
-              <section key={status} className="animate-slide-up">
+              <section key={groupKey} className="animate-slide-up">
                 <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                   <span className="w-1 h-5 bg-gradient-to-b from-primary-500 to-purple-500 rounded-full"></span>
-                  <span>{config.emoji}</span>
-                  {config.label}
+                  <span>{emoji}</span>
+                  {label}
                   <span className="ml-1 text-sm font-normal text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
-                    {statusBooks.length}冊
+                    {groupBooks.length}冊
                   </span>
                 </h2>
                 <div
@@ -169,7 +255,7 @@ function BookList() {
                       : 'space-y-4'
                   }
                 >
-                  {statusBooks.map((book) => (
+                  {groupBooks.map((book) => (
                     <BookCard
                       key={book.id}
                       book={book}
