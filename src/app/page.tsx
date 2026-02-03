@@ -29,6 +29,15 @@ function BookList() {
         const params = new URLSearchParams(searchParams.toString())
         // 常にページ1から開始
         params.set('page', '1')
+
+        // グループ表示の時は全件取得
+        const status = params.get('status')
+        const category = params.get('category')
+        const isGroupView = (!status || status === 'ALL') && (!category || category === 'ALL')
+        if (isGroupView) {
+          params.set('limit', '1000')
+        }
+
         const res = await fetch(`/api/books?${params.toString()}`)
         const data = await res.json()
 
@@ -306,16 +315,6 @@ function BookList() {
               )
             })}
           </div>
-          {pagination.hasMore && (
-            <div className="mt-8 flex justify-center">
-              <button
-                onClick={loadMore}
-                className="px-6 py-3 bg-gradient-to-r from-primary-500 to-purple-500 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-200"
-              >
-                もっと見る ({pagination.total - books.length}冊)
-              </button>
-            </div>
-          )}
         </>
       )}
     </div>
