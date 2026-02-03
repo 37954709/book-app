@@ -75,6 +75,24 @@ function BookList() {
     }
   }, [])
 
+  const loadMore = useCallback(async () => {
+    if (!pagination.hasMore || isLoading) return
+
+    try {
+      const params = new URLSearchParams(searchParams.toString())
+      params.set('page', String(pagination.page + 1))
+      const res = await fetch(`/api/books?${params.toString()}`)
+      const data = await res.json()
+
+      if (data.books && Array.isArray(data.books)) {
+        setBooks((prev) => [...prev, ...data.books])
+        setPagination(data.pagination)
+      }
+    } catch (error) {
+      console.error('Error loading more books:', error)
+    }
+  }, [pagination.hasMore, pagination.page, isLoading, searchParams])
+
   // 状態別のグループ化（オプション）
   const currentStatus = searchParams.get('status')
   const currentCategory = searchParams.get('category')
@@ -212,67 +230,91 @@ function BookList() {
           </Link>
         </div>
       ) : currentStatus && currentStatus !== 'ALL' ? (
-        <div
-          className={
-            viewMode === 'grid'
-              ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4'
-              : 'space-y-4'
-          }
-        >
-          {books.map((book) => (
-            <BookCard
-              key={book.id}
-              book={book}
-              viewMode={viewMode}
-              onPurchase={book.status === BookStatus.WISHLIST ? handlePurchase : undefined}
-            />
-          ))}
-        </div>
+        <>
+          <div
+            className={
+              viewMode === 'grid'
+                ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4'
+                : 'space-y-4'
+            }
+          >
+            {books.map((book) => (
+              <BookCard
+                key={book.id}
+                book={book}
+                viewMode={viewMode}
+                onPurchase={book.status === BookStatus.WISHLIST ? handlePurchase : undefined}
+              />
+            ))}
+          </div>
+          {pagination.hasMore && (
+            <div className="mt-8 flex justify-center">
+              <button
+                onClick={loadMore}
+                className="px-6 py-3 bg-gradient-to-r from-primary-500 to-purple-500 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-200"
+              >
+                もっと見る ({pagination.total - books.length}冊)
+              </button>
+            </div>
+          )}
+        </>
       ) : (
-        <div className="space-y-10">
-          {groupOrder.map((groupKey) => {
-            const groupBooks = groupedBooks[groupKey as string]
-            if (!groupBooks || groupBooks.length === 0) return null
+        <>
+          <div className="space-y-10">
+            {groupOrder.map((groupKey) => {
+              const groupBooks = groupedBooks[groupKey as string]
+              if (!groupBooks || groupBooks.length === 0) return null
 
-            const label =
-              groupMode === 'status'
-                ? statusConfig[groupKey as BookStatus]?.label
-                : categoryLabels[groupKey as BookCategory]
-            const emoji =
-              groupMode === 'status'
-                ? statusConfig[groupKey as BookStatus]?.emoji
-                : categoryEmojis[groupKey as BookCategory]
+              const label =
+                groupMode === 'status'
+                  ? statusConfig[groupKey as BookStatus]?.label
+                  : categoryLabels[groupKey as BookCategory]
+              const emoji =
+                groupMode === 'status'
+                  ? statusConfig[groupKey as BookStatus]?.emoji
+                  : categoryEmojis[groupKey as BookCategory]
 
-            return (
-              <section key={groupKey} className="animate-slide-up">
-                <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                  <span className="w-1 h-5 bg-gradient-to-b from-primary-500 to-purple-500 rounded-full"></span>
-                  <span>{emoji}</span>
-                  {label}
-                  <span className="ml-1 text-sm font-normal text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
-                    {groupBooks.length}冊
-                  </span>
-                </h2>
-                <div
-                  className={
-                    viewMode === 'grid'
-                      ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4'
-                      : 'space-y-4'
-                  }
-                >
-                  {groupBooks.map((book) => (
-                    <BookCard
-                      key={book.id}
-                      book={book}
-                      viewMode={viewMode}
-                      onPurchase={book.status === BookStatus.WISHLIST ? handlePurchase : undefined}
-                    />
-                  ))}
-                </div>
-              </section>
-            )
-          })}
-        </div>
+              return (
+                <section key={groupKey} className="animate-slide-up">
+                  <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <span className="w-1 h-5 bg-gradient-to-b from-primary-500 to-purple-500 rounded-full"></span>
+                    <span>{emoji}</span>
+                    {label}
+                    <span className="ml-1 text-sm font-normal text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                      {groupBooks.length}冊
+                    </span>
+                  </h2>
+                  <div
+                    className={
+                      viewMode === 'grid'
+                        ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4'
+                        : 'space-y-4'
+                    }
+                  >
+                    {groupBooks.map((book) => (
+                      <BookCard
+                        key={book.id}
+                        book={book}
+                        viewMode={viewMode}
+                        onPurchase={book.status === BookStatus.WISHLIST ? handlePurchase : undefined}
+                      />
+                    ))}
+                  </div>
+                </section>
+              )
+            })}
+          </div>
+          {pagination.hasMore && (
+            <div className="mt-8 flex justify-center">
+              <button
+                onClick={loadMore}
+                className="px-6 py-3 bg-gradient-to-r from-primary-500 to-purple-500 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-200"
+              >
+                もっと見る ({pagination.total - books.length}冊)
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   )
