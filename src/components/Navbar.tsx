@@ -74,13 +74,17 @@ export function Navbar() {
 
   return (
     <>
-      <nav className="bg-white shadow-sm sticky top-0 z-50">
+      <nav className="glass sticky top-0 z-50 border-b border-gray-200/50">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* ロゴ */}
-            <Link href="/" className="flex items-center gap-2 text-xl font-bold text-primary-600">
-              <BookOpen size={28} />
-              <span className="hidden sm:inline">Book App</span>
+            <Link href="/" className="flex items-center gap-2.5 text-xl font-bold">
+              <div className="w-9 h-9 bg-gradient-to-br from-primary-500 to-purple-500 rounded-xl flex items-center justify-center shadow-md">
+                <BookOpen size={20} className="text-white" />
+              </div>
+              <span className="hidden sm:inline bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
+                Book App
+              </span>
             </Link>
 
             {/* デスクトップナビゲーション */}
@@ -90,13 +94,13 @@ export function Navbar() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    'flex items-center gap-2 px-3 py-2 rounded-lg transition-colors',
+                    'flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200',
                     pathname === item.href
-                      ? 'bg-primary-100 text-primary-700'
-                      : 'text-gray-600 hover:bg-gray-100'
+                      ? 'bg-primary-100 text-primary-700 font-medium shadow-sm'
+                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                   )}
                 >
-                  <item.icon size={20} />
+                  <item.icon size={18} />
                   <span>{item.label}</span>
                 </Link>
               ))}
@@ -105,15 +109,15 @@ export function Navbar() {
               <div className="ml-2 pl-2 border-l border-gray-200 flex items-center gap-1">
                 <button
                   onClick={handleExport}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 rounded-xl text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-all duration-200"
                   title="エクスポート"
                 >
-                  <Download size={20} />
-                  <span className="hidden lg:inline">エクスポート</span>
+                  <Download size={18} />
+                  <span className="hidden lg:inline text-sm">エクスポート</span>
                 </button>
-                <label className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer">
-                  <Upload size={20} />
-                  <span className="hidden lg:inline">インポート</span>
+                <label className="flex items-center gap-2 px-3 py-2 rounded-xl text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-all duration-200 cursor-pointer">
+                  <Upload size={18} />
+                  <span className="hidden lg:inline text-sm">インポート</span>
                   <input
                     ref={importInputRef}
                     type="file"
@@ -127,16 +131,18 @@ export function Navbar() {
               {/* ユーザーメニュー */}
               {!loading && user && (
                 <div className="ml-2 pl-2 border-l border-gray-200 flex items-center gap-2">
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <User size={18} />
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <div className="w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
+                      <User size={16} className="text-gray-500" />
+                    </div>
                     <span className="hidden lg:inline max-w-32 truncate">{user.email}</span>
                   </div>
                   <button
                     onClick={signOut}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors"
+                    className="flex items-center gap-2 p-2 rounded-xl text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all duration-200"
                     title="ログアウト"
                   >
-                    <LogOut size={20} />
+                    <LogOut size={18} />
                   </button>
                 </div>
               )}
@@ -145,7 +151,7 @@ export function Navbar() {
             {/* モバイルメニューボタン */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100"
+              className="md:hidden p-2 rounded-xl text-gray-600 hover:bg-gray-100 transition-colors"
             >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -154,7 +160,7 @@ export function Navbar() {
 
         {/* モバイルメニュー */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 bg-white">
+          <div className="md:hidden border-t border-gray-200/50 bg-white/95 backdrop-blur-lg animate-fade-in">
             <div className="px-4 py-3 space-y-1">
               {navItems.map((item) => (
                 <Link
@@ -162,9 +168,9 @@ export function Navbar() {
                   href={item.href}
                   onClick={() => setMobileMenuOpen(false)}
                   className={cn(
-                    'flex items-center gap-3 px-3 py-3 rounded-lg transition-colors',
+                    'flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200',
                     pathname === item.href
-                      ? 'bg-primary-100 text-primary-700'
+                      ? 'bg-primary-100 text-primary-700 font-medium'
                       : 'text-gray-600 hover:bg-gray-100'
                   )}
                 >
@@ -173,15 +179,15 @@ export function Navbar() {
                 </Link>
               ))}
 
-              <div className="border-t border-gray-200 pt-2 mt-2">
+              <div className="border-t border-gray-200 pt-3 mt-3">
                 <button
                   onClick={() => { handleExport(); setMobileMenuOpen(false); }}
-                  className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-gray-600 hover:bg-gray-100"
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-100 transition-colors"
                 >
                   <Download size={20} />
                   <span>エクスポート</span>
                 </button>
-                <label className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer">
+                <label className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors">
                   <Upload size={20} />
                   <span>インポート</span>
                   <input
@@ -194,14 +200,16 @@ export function Navbar() {
               </div>
 
               {!loading && user && (
-                <div className="border-t border-gray-200 pt-2 mt-2">
-                  <div className="flex items-center gap-3 px-3 py-2 text-sm text-gray-600">
-                    <User size={18} />
+                <div className="border-t border-gray-200 pt-3 mt-3">
+                  <div className="flex items-center gap-3 px-4 py-2 text-sm text-gray-500">
+                    <div className="w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
+                      <User size={16} />
+                    </div>
                     <span className="truncate">{user.email}</span>
                   </div>
                   <button
                     onClick={() => { signOut(); setMobileMenuOpen(false); }}
-                    className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-red-600 hover:bg-red-50"
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-colors"
                   >
                     <LogOut size={20} />
                     <span>ログアウト</span>
@@ -214,21 +222,26 @@ export function Navbar() {
       </nav>
 
       {/* モバイル用ボトムナビゲーション */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 glass border-t border-gray-200/50 z-50 pb-safe">
         <div className="flex items-center justify-around h-16">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                'flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-colors',
+                'flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-200',
                 pathname === item.href
                   ? 'text-primary-600'
-                  : 'text-gray-500'
+                  : 'text-gray-400'
               )}
             >
-              <item.icon size={22} />
-              <span className="text-xs">{item.label}</span>
+              <div className={cn(
+                'p-1.5 rounded-xl transition-all duration-200',
+                pathname === item.href && 'bg-primary-100'
+              )}>
+                <item.icon size={22} />
+              </div>
+              <span className="text-xs font-medium">{item.label}</span>
             </Link>
           ))}
         </div>
