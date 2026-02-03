@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { BookOpen, PlusCircle, LayoutDashboard, Download, Upload, LogOut, User, Menu, X, Users } from 'lucide-react'
+import { BookOpen, PlusCircle, LayoutDashboard, Download, Upload, LogOut, User, Menu, X, Users, Settings } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useRef, useState } from 'react'
 import { useAuth } from './AuthProvider'
@@ -132,12 +132,23 @@ export function Navbar() {
               {/* ユーザーメニュー */}
               {!loading && user && (
                 <div className="ml-2 pl-2 border-l border-gray-200 flex items-center gap-2">
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <Link
+                    href="/settings"
+                    className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                    title="設定"
+                  >
                     <div className="w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
                       <User size={16} className="text-gray-500" />
                     </div>
                     <span className="hidden lg:inline max-w-32 truncate">{user.email}</span>
-                  </div>
+                  </Link>
+                  <Link
+                    href="/settings"
+                    className="p-2 rounded-xl text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-all duration-200"
+                    title="設定"
+                  >
+                    <Settings size={18} />
+                  </Link>
                   <button
                     onClick={signOut}
                     className="flex items-center gap-2 p-2 rounded-xl text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all duration-200"
@@ -208,6 +219,14 @@ export function Navbar() {
                     </div>
                     <span className="truncate">{user.email}</span>
                   </div>
+                  <Link
+                    href="/settings"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-100 transition-colors"
+                  >
+                    <Settings size={20} />
+                    <span>設定</span>
+                  </Link>
                   <button
                     onClick={() => { signOut(); setMobileMenuOpen(false); }}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-colors"
