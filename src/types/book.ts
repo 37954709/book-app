@@ -19,25 +19,29 @@ export type Priority = (typeof Priority)[keyof typeof Priority]
 
 // カテゴリの定義
 export const BookCategory = {
-  NOVEL: 'NOVEL',
-  MANGA: 'MANGA',
+  FICTION: 'FICTION',
+  HUMANITIES: 'HUMANITIES',
+  HISTORY: 'HISTORY',
+  POLITICS: 'POLITICS',
   BUSINESS: 'BUSINESS',
-  TECH: 'TECH',
-  PHILOSOPHY: 'PHILOSOPHY',
-  SELFHELP: 'SELFHELP',
+  SCIENCE: 'SCIENCE',
+  HOBBY: 'HOBBY',
+  MANGA: 'MANGA',
   OTHER: 'OTHER',
 } as const
 
 export type BookCategory = (typeof BookCategory)[keyof typeof BookCategory]
 
-// カテゴリのラベル
+// カテゴリのラベル（表示順）
 export const categoryLabels: Record<BookCategory, string> = {
-  NOVEL: '小説',
+  FICTION: '小説・文学',
+  HUMANITIES: '人文・思想・社会',
+  HISTORY: '歴史・地理',
+  POLITICS: '政治・経済・法律',
+  BUSINESS: 'ビジネス・自己啓発',
+  SCIENCE: '科学・工学・コンピュータ',
+  HOBBY: '趣味・実用',
   MANGA: '漫画',
-  BUSINESS: 'ビジネス',
-  TECH: '技術書',
-  PHILOSOPHY: '哲学書',
-  SELFHELP: '自己啓発',
   OTHER: 'その他',
 }
 
@@ -119,7 +123,7 @@ export interface BookFilters {
   owned?: boolean | 'ALL'
   rating?: number | 'ALL'
   tagId?: number
-  sort?: 'createdAt' | 'finishedDate' | 'rating' | 'priority' | 'plannedPurchaseDate'
+  sort?: 'createdAt' | 'finishedDate' | 'rating' | 'priority' | 'plannedPurchaseDate' | 'category'
   order?: 'asc' | 'desc'
 }
 

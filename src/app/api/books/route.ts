@@ -68,11 +68,11 @@ export async function GET(request: NextRequest) {
     }
 
     // ソート条件の構築
-    type SortField = 'createdAt' | 'finishedDate' | 'rating' | 'priority' | 'plannedPurchaseDate'
+    type SortField = 'createdAt' | 'finishedDate' | 'rating' | 'priority' | 'plannedPurchaseDate' | 'category'
     const orderBy: Prisma.BookOrderByWithRelationInput = {}
     const sortField = sort as SortField
 
-    if (['createdAt', 'finishedDate', 'rating', 'priority', 'plannedPurchaseDate'].includes(sortField)) {
+    if (['createdAt', 'finishedDate', 'rating', 'priority', 'plannedPurchaseDate', 'category'].includes(sortField)) {
       orderBy[sortField] = order as 'asc' | 'desc'
     } else {
       orderBy.createdAt = 'desc'

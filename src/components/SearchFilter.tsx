@@ -93,6 +93,7 @@ export function SearchFilter({ viewMode, onViewModeChange }: SearchFilterProps) 
 
   const sortOptions = [
     { value: 'createdAt', label: '追加日' },
+    { value: 'category', label: 'カテゴリ' },
     { value: 'finishedDate', label: '読了日' },
     { value: 'rating', label: '評価' },
     { value: 'priority', label: '優先度' },
