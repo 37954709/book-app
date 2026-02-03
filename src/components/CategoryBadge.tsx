@@ -7,12 +7,14 @@ interface CategoryBadgeProps {
 }
 
 const categoryColors: Record<BookCategory, string> = {
-  NOVEL: 'bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700 border-amber-200',
-  MANGA: 'bg-gradient-to-r from-pink-100 to-rose-100 text-pink-700 border-pink-200',
+  FICTION: 'bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700 border-amber-200',
+  HUMANITIES: 'bg-gradient-to-r from-teal-100 to-emerald-100 text-teal-700 border-teal-200',
+  HISTORY: 'bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-700 border-amber-200',
+  POLITICS: 'bg-gradient-to-r from-slate-100 to-gray-200 text-slate-700 border-slate-300',
   BUSINESS: 'bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 border-blue-200',
-  TECH: 'bg-gradient-to-r from-violet-100 to-purple-100 text-violet-700 border-violet-200',
-  PHILOSOPHY: 'bg-gradient-to-r from-teal-100 to-emerald-100 text-teal-700 border-teal-200',
-  SELFHELP: 'bg-gradient-to-r from-yellow-100 to-lime-100 text-yellow-700 border-yellow-200',
+  SCIENCE: 'bg-gradient-to-r from-violet-100 to-purple-100 text-violet-700 border-violet-200',
+  HOBBY: 'bg-gradient-to-r from-green-100 to-lime-100 text-green-700 border-green-200',
+  MANGA: 'bg-gradient-to-r from-pink-100 to-rose-100 text-pink-700 border-pink-200',
   OTHER: 'bg-gradient-to-r from-gray-100 to-slate-100 text-gray-600 border-gray-200',
 }
 
