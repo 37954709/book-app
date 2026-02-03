@@ -57,6 +57,7 @@ export function BookCover({
         fill
         sizes={size === 'lg' ? '160px' : size === 'md' ? '96px' : '64px'}
         className="object-cover"
+        loading="lazy"
         onError={() => setHasError(true)}
       />
     </div>
