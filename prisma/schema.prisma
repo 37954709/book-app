@@ -75,6 +75,11 @@ model Book {
   tags        BookTag[]
 
   @@index([userId])
+  @@index([status])
+  @@index([category])
+  @@index([title])
+  @@index([author])
+  @@index([isbn])
 }
 
 model Tag {

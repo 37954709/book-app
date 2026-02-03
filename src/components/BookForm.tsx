@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Book, BookStatus, BookCategory, statusLabels, priorityLabels, categoryLabels, Tag } from '@/types/book'
 import { Input } from './Input'
@@ -97,11 +97,11 @@ export function BookForm({ book, onSubmit, isLoading }: BookFormProps) {
       } finally {
         setIsCheckingCover(false)
       }
-    }, 500),
+    }, 300),
     []
   )
 
-  const handleInputChange = (
+  const handleInputChange = useCallback((
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value, type } = e.target
@@ -116,19 +116,24 @@ export function BookForm({ book, onSubmit, isLoading }: BookFormProps) {
     }
 
     // 状態が読了に変更されたら読了日を今日に設定
-    if (name === 'status' && value === BookStatus.FINISHED && !formData.finishedDate) {
-      setFormData((prev) => ({ ...prev, finishedDate: getTodayString() }))
+    if (name === 'status' && value === BookStatus.FINISHED) {
+      setFormData((prev) => {
+        if (!prev.finishedDate) {
+          return { ...prev, finishedDate: getTodayString() }
+        }
+        return prev
+      })
     }
-  }
+  }, [checkCover])
 
-  const handleRatingChange = (rating: number) => {
+  const handleRatingChange = useCallback((rating: number) => {
     setFormData((prev) => ({
       ...prev,
       rating: prev.rating === rating ? null : rating,
     }))
-  }
+  }, [])
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
@@ -159,9 +164,9 @@ export function BookForm({ book, onSubmit, isLoading }: BookFormProps) {
     } finally {
       setIsUploading(false)
     }
-  }
+  }, [])
 
-  const handleTagAdd = async () => {
+  const handleTagAdd = useCallback(async () => {
     if (!newTag.trim()) return
 
     try {
@@ -180,19 +185,19 @@ export function BookForm({ book, onSubmit, isLoading }: BookFormProps) {
     } catch (error) {
       console.error('Error creating tag:', error)
     }
-  }
+  }, [newTag])
 
-  const handleTagToggle = (tagId: number) => {
+  const handleTagToggle = useCallback((tagId: number) => {
     setFormData((prev) => ({
       ...prev,
       tagIds: prev.tagIds.includes(tagId)
         ? prev.tagIds.filter((id) => id !== tagId)
         : [...prev.tagIds, tagId],
     }))
-  }
+  }, [])
 
   // 書籍検索から選択された時の処理
-  const handleBookSelect = (selectedBook: {
+  const handleBookSelect = useCallback((selectedBook: {
     title: string
     author: string
     publisher: string
@@ -207,9 +212,9 @@ export function BookForm({ book, onSubmit, isLoading }: BookFormProps) {
       isbn: selectedBook.isbn || prev.isbn,
       coverUrl: selectedBook.coverUrl || prev.coverUrl,
     }))
-  }
+  }, [])
 
-  const validate = (): boolean => {
+  const validate = useCallback((): boolean => {
     const newErrors: Partial<Record<keyof BookFormData, string>> = {}
 
     if (!formData.title.trim()) {
@@ -226,15 +231,34 @@ export function BookForm({ book, onSubmit, isLoading }: BookFormProps) {
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
-  }
+  }, [formData])
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
     if (!validate()) return
     await onSubmit(formData as unknown as Record<string, unknown>)
-  }
+  }, [validate, onSubmit, formData])
 
   const isWishlist = formData.status === BookStatus.WISHLIST
+
+  // Select options をメモ化
+  const statusOptions = useMemo(
+    () => Object.entries(statusLabels).map(([value, label]) => ({ value, label })),
+    []
+  )
+
+  const categoryOptions = useMemo(
+    () => [
+      { value: '', label: '未設定' },
+      ...Object.entries(categoryLabels).map(([value, label]) => ({ value, label })),
+    ],
+    []
+  )
+
+  const priorityOptions = useMemo(
+    () => Object.entries(priorityLabels).map(([value, label]) => ({ value, label })),
+    []
+  )
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -332,10 +356,7 @@ export function BookForm({ book, onSubmit, isLoading }: BookFormProps) {
           label="状態"
           value={formData.status}
           onChange={handleInputChange}
-          options={Object.entries(statusLabels).map(([value, label]) => ({
-            value,
-            label,
-          }))}
+          options={statusOptions}
         />
         <Select
           id="category"
@@ -343,13 +364,7 @@ export function BookForm({ book, onSubmit, isLoading }: BookFormProps) {
           label="カテゴリ"
           value={formData.category}
           onChange={handleInputChange}
-          options={[
-            { value: '', label: '未設定' },
-            ...Object.entries(categoryLabels).map(([value, label]) => ({
-              value,
-              label,
-            })),
-          ]}
+          options={categoryOptions}
         />
         <div className="flex items-end">
           <label className="flex items-center gap-2 cursor-pointer">
@@ -387,10 +402,7 @@ export function BookForm({ book, onSubmit, isLoading }: BookFormProps) {
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, priority: parseInt(e.target.value) }))
               }
-              options={Object.entries(priorityLabels).map(([value, label]) => ({
-                value,
-                label,
-              }))}
+              options={priorityOptions}
             />
           </div>
           <div className="grid grid-cols-2 gap-4">

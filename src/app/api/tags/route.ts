@@ -17,7 +17,12 @@ export async function GET() {
       },
     })
 
-    return NextResponse.json(tags)
+    // キャッシュヘッダーを追加（60秒間キャッシュ）
+    return NextResponse.json(tags, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+      },
+    })
   } catch (error) {
     console.error('Error fetching tags:', error)
     if (error instanceof Error && error.message === 'Unauthorized') {

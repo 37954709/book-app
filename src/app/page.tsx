@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, Suspense, useCallback, useMemo } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Book, BookStatus } from '@/types/book'
 import { BookCard } from '@/components/BookCard'
@@ -13,6 +13,13 @@ function BookList() {
   const [books, setBooks] = useState<Book[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 50,
+    total: 0,
+    totalPages: 0,
+    hasMore: false,
+  })
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -21,11 +28,17 @@ function BookList() {
         const params = new URLSearchParams(searchParams.toString())
         const res = await fetch(`/api/books?${params.toString()}`)
         const data = await res.json()
-        // APIがエラーを返した場合は空配列にする
-        if (Array.isArray(data)) {
+
+        // 新しいペジネーション対応レスポンス形式
+        if (data.books && Array.isArray(data.books)) {
+          setBooks(data.books)
+          setPagination(data.pagination)
+        }
+        // 後方互換性: 旧形式（配列のみ）にも対応
+        else if (Array.isArray(data)) {
           setBooks(data)
         } else {
-          console.error('API returned non-array:', data)
+          console.error('API returned unexpected format:', data)
           setBooks([])
         }
       } catch (error) {
@@ -39,7 +52,7 @@ function BookList() {
     fetchBooks()
   }, [searchParams])
 
-  const handlePurchase = async (id: number) => {
+  const handlePurchase = useCallback(async (id: number) => {
     if (!confirm('この本を購入済みにしますか？')) return
 
     try {
@@ -59,28 +72,37 @@ function BookList() {
     } catch (error) {
       console.error('Error purchasing book:', error)
     }
-  }
+  }, [])
 
   // 状態別のグループ化（オプション）
   const currentStatus = searchParams.get('status')
-  const groupedBooks =
-    currentStatus && currentStatus !== 'ALL'
-      ? { [currentStatus]: books }
-      : books.reduce<Record<string, Book[]>>((acc, book) => {
-          const status = book.status
-          if (!acc[status]) acc[status] = []
-          acc[status].push(book)
-          return acc
-        }, {})
+  const groupedBooks = useMemo(
+    () =>
+      currentStatus && currentStatus !== 'ALL'
+        ? { [currentStatus]: books }
+        : books.reduce<Record<string, Book[]>>((acc, book) => {
+            const status = book.status
+            if (!acc[status]) acc[status] = []
+            acc[status].push(book)
+            return acc
+          }, {}),
+    [books, currentStatus]
+  )
 
-  const statusOrder = [BookStatus.WISHLIST, BookStatus.READING, BookStatus.UNREAD, BookStatus.FINISHED]
+  const statusOrder = useMemo(
+    () => [BookStatus.WISHLIST, BookStatus.READING, BookStatus.UNREAD, BookStatus.FINISHED],
+    []
+  )
 
-  const statusConfig: Record<BookStatus, { label: string; emoji: string }> = {
-    WISHLIST: { label: '欲しい本', emoji: '💫' },
-    UNREAD: { label: '未読', emoji: '📚' },
-    READING: { label: '読書中', emoji: '📖' },
-    FINISHED: { label: '読了', emoji: '✨' },
-  }
+  const statusConfig = useMemo<Record<BookStatus, { label: string; emoji: string }>>(
+    () => ({
+      WISHLIST: { label: '欲しい本', emoji: '💫' },
+      UNREAD: { label: '未読', emoji: '📚' },
+      READING: { label: '読書中', emoji: '📖' },
+      FINISHED: { label: '読了', emoji: '✨' },
+    }),
+    []
+  )
 
   return (
     <div className="animate-fade-in">

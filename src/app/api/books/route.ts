@@ -18,6 +18,11 @@ export async function GET(request: NextRequest) {
     const sort = searchParams.get('sort') || 'createdAt'
     const order = searchParams.get('order') || 'desc'
 
+    // ページネーション
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '50')
+    const skip = (page - 1) * limit
+
     // フィルタ条件の構築（ユーザーIDで絞り込み）
     const where: Prisma.BookWhereInput = {
       userId: user.id,
@@ -73,19 +78,34 @@ export async function GET(request: NextRequest) {
       orderBy.createdAt = 'desc'
     }
 
-    const books = await prisma.book.findMany({
-      where,
-      orderBy,
-      include: {
-        tags: {
-          include: {
-            tag: true,
+    // 総数取得とデータ取得を並列実行
+    const [books, total] = await Promise.all([
+      prisma.book.findMany({
+        where,
+        orderBy,
+        skip,
+        take: limit,
+        include: {
+          tags: {
+            include: {
+              tag: true,
+            },
           },
         },
+      }),
+      prisma.book.count({ where }),
+    ])
+
+    return NextResponse.json({
+      books,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+        hasMore: skip + books.length < total,
       },
     })
-
-    return NextResponse.json(books)
   } catch (error) {
     console.error('Error fetching books:', error)
     if (error instanceof Error && error.message === 'Unauthorized') {

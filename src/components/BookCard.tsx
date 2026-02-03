@@ -1,5 +1,6 @@
 'use client'
 
+import { memo } from 'react'
 import Link from 'next/link'
 import { Book, BookStatus, BookCategory, Priority } from '@/types/book'
 import { BookCover } from './BookCover'
@@ -17,7 +18,7 @@ interface BookCardProps {
   onPurchase?: (id: number) => void
 }
 
-export function BookCard({ book, viewMode, onPurchase }: BookCardProps) {
+const BookCardComponent = ({ book, viewMode, onPurchase }: BookCardProps) => {
   const isWishlist = book.status === BookStatus.WISHLIST
 
   if (viewMode === 'grid') {
@@ -147,3 +148,5 @@ export function BookCard({ book, viewMode, onPurchase }: BookCardProps) {
     </Link>
   )
 }
+
+export const BookCard = memo(BookCardComponent)

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Input } from './Input'
 import { Select } from './Select'
@@ -104,10 +104,13 @@ export function SearchFilter({ viewMode, onViewModeChange }: SearchFilterProps) 
     { value: 'asc', label: '昇順' },
   ]
 
-  const tagOptions = [
-    { value: '', label: 'すべて' },
-    ...tags.map((tag) => ({ value: tag.id.toString(), label: tag.name })),
-  ]
+  const tagOptions = useMemo(
+    () => [
+      { value: '', label: 'すべて' },
+      ...tags.map((tag) => ({ value: tag.id.toString(), label: tag.name })),
+    ],
+    [tags]
+  )
 
   const hasActiveFilters =
     status !== 'ALL' || category !== 'ALL' || owned !== 'ALL' || rating !== 'ALL' || tagId !== ''
