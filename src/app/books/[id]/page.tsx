@@ -28,6 +28,7 @@ export default function BookDetailPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isDeleting, setIsDeleting] = useState(false)
   const [isPurchasing, setIsPurchasing] = useState(false)
+  const [isOwnBook, setIsOwnBook] = useState(true)
 
   useEffect(() => {
     const fetchBook = async () => {
@@ -36,6 +37,7 @@ export default function BookDetailPage() {
         if (!res.ok) throw new Error('Book not found')
         const data = await res.json()
         setBook(data)
+        setIsOwnBook(data.isOwnBook !== false) // デフォルトはtrue（後方互換性）
       } catch (error) {
         console.error('Error fetching book:', error)
         router.push('/')
@@ -162,33 +164,35 @@ export default function BookDetailPage() {
               </div>
             )}
 
-            {/* アクションボタン */}
-            <div className="mt-6 flex flex-wrap gap-3">
-              {isWishlist && (
+            {/* アクションボタン（自分の本のみ） */}
+            {isOwnBook && (
+              <div className="mt-6 flex flex-wrap gap-3">
+                {isWishlist && (
+                  <Button
+                    onClick={handlePurchase}
+                    isLoading={isPurchasing}
+                    className="bg-pink-600 hover:bg-pink-700"
+                  >
+                    <ShoppingCart size={18} className="mr-2" />
+                    購入済みにする
+                  </Button>
+                )}
+                <Link href={`/books/${id}/edit`}>
+                  <Button variant="secondary">
+                    <Pencil size={18} className="mr-2" />
+                    編集
+                  </Button>
+                </Link>
                 <Button
-                  onClick={handlePurchase}
-                  isLoading={isPurchasing}
-                  className="bg-pink-600 hover:bg-pink-700"
+                  variant="danger"
+                  onClick={handleDelete}
+                  isLoading={isDeleting}
                 >
-                  <ShoppingCart size={18} className="mr-2" />
-                  購入済みにする
+                  <Trash2 size={18} className="mr-2" />
+                  削除
                 </Button>
-              )}
-              <Link href={`/books/${id}/edit`}>
-                <Button variant="secondary">
-                  <Pencil size={18} className="mr-2" />
-                  編集
-                </Button>
-              </Link>
-              <Button
-                variant="danger"
-                onClick={handleDelete}
-                isLoading={isDeleting}
-              >
-                <Trash2 size={18} className="mr-2" />
-                削除
-              </Button>
-            </div>
+              </div>
+            )}
           </div>
         </div>
 

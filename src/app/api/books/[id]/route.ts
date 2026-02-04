@@ -21,11 +21,18 @@ export async function GET(
     }
 
     const book = await prisma.book.findUnique({
-      where: { id: bookId, userId: user.id },
+      where: { id: bookId },
       include: {
         tags: {
           include: {
             tag: true,
+          },
+        },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            avatarUrl: true,
           },
         },
       },
@@ -38,7 +45,27 @@ export async function GET(
       )
     }
 
-    return NextResponse.json(book)
+    // 自分の本か、フォローしているユーザーの本のみ閲覧可能
+    const isOwnBook = book.userId === user.id
+    if (!isOwnBook) {
+      const follow = await prisma.follow.findUnique({
+        where: {
+          followerId_followingId: {
+            followerId: user.id,
+            followingId: book.userId,
+          },
+        },
+      })
+
+      if (!follow) {
+        return NextResponse.json(
+          { error: 'You need to follow this user to view their book' },
+          { status: 403 }
+        )
+      }
+    }
+
+    return NextResponse.json({ ...book, isOwnBook })
   } catch (error) {
     console.error('Error fetching book:', error)
     if (error instanceof Error && error.message === 'Unauthorized') {
