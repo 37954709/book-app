@@ -13,7 +13,7 @@ function BookList() {
   const [books, setBooks] = useState<Book[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
-  const [groupMode, setGroupMode] = useState<'status' | 'category'>('status')
+  const [groupMode, setGroupMode] = useState<'status' | 'category'>('category')
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
