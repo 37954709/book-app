@@ -1,14 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { User, BookOpen, Users, UserPlus, UserMinus, ArrowLeft, Calendar } from 'lucide-react'
+import { User, BookOpen, Users, UserPlus, UserMinus, ArrowLeft, Calendar, LayoutGrid } from 'lucide-react'
 import { Button } from '@/components/Button'
 import { BookCard } from '@/components/BookCard'
 import { Select } from '@/components/Select'
 import { UserProfile } from '@/types/user'
-import { Book, statusLabels, categoryLabels } from '@/types/book'
+import { Book, BookStatus, BookCategory, statusLabels, categoryLabels } from '@/types/book'
 import { formatDateJa } from '@/lib/utils'
 
 export default function UserProfilePage() {
@@ -23,6 +23,53 @@ export default function UserProfilePage() {
   // フィルタ
   const [status, setStatus] = useState('ALL')
   const [category, setCategory] = useState('ALL')
+  const [groupMode, setGroupMode] = useState<'status' | 'category'>('status')
+
+  // グループ化とソート順の定義
+  const statusConfig = useMemo<Record<BookStatus, { label: string; emoji: string }>>(
+    () => ({
+      WISHLIST: { label: '欲しい本', emoji: '💫' },
+      UNREAD: { label: '未読', emoji: '📚' },
+      READING: { label: '読書中', emoji: '📖' },
+      FINISHED: { label: '読了', emoji: '✨' },
+    }),
+    []
+  )
+
+  const categoryEmojis: Record<BookCategory, string> = useMemo(
+    () => ({
+      FICTION: '📚',
+      HUMANITIES: '🤔',
+      HISTORY: '📜',
+      POLITICS: '⚖️',
+      BUSINESS: '💼',
+      SCIENCE: '🔬',
+      HOBBY: '🎨',
+      MANGA: '📕',
+      OTHER: '📖',
+    }),
+    []
+  )
+
+  const statusOrder = useMemo(
+    () => [BookStatus.WISHLIST, BookStatus.READING, BookStatus.UNREAD, BookStatus.FINISHED],
+    []
+  )
+
+  const categoryOrder = useMemo(
+    () => [
+      BookCategory.FICTION,
+      BookCategory.HUMANITIES,
+      BookCategory.HISTORY,
+      BookCategory.POLITICS,
+      BookCategory.BUSINESS,
+      BookCategory.SCIENCE,
+      BookCategory.HOBBY,
+      BookCategory.MANGA,
+      BookCategory.OTHER,
+    ],
+    []
+  )
 
   useEffect(() => {
     fetchProfile()
@@ -124,6 +171,37 @@ export default function UserProfilePage() {
     { value: 'ALL', label: 'すべて' },
     ...Object.entries(categoryLabels).map(([value, label]) => ({ value, label })),
   ]
+
+  // グループ化ロジック
+  const groupedBooksByStatus = useMemo(
+    () =>
+      status && status !== 'ALL'
+        ? { [status]: books }
+        : books.reduce<Record<string, Book[]>>((acc, book) => {
+            const bookStatus = book.status
+            if (!acc[bookStatus]) acc[bookStatus] = []
+            acc[bookStatus].push(book)
+            return acc
+          }, {}),
+    [books, status]
+  )
+
+  const groupedBooksByCategory = useMemo(
+    () =>
+      category && category !== 'ALL'
+        ? { [category]: books }
+        : books.reduce<Record<string, Book[]>>((acc, book) => {
+            const bookCategory = book.category || 'OTHER'
+            if (!acc[bookCategory]) acc[bookCategory] = []
+            acc[bookCategory].push(book)
+            return acc
+          }, {}),
+    [books, category]
+  )
+
+  const showGroupToggle = (!status || status === 'ALL') && (!category || category === 'ALL')
+  const groupedBooks = groupMode === 'status' ? groupedBooksByStatus : groupedBooksByCategory
+  const groupOrder = groupMode === 'status' ? statusOrder : categoryOrder
 
   if (isLoading) {
     return (
@@ -272,11 +350,74 @@ export default function UserProfilePage() {
             </div>
           </div>
 
+          {/* グループ表示切替 */}
+          {showGroupToggle && books.length > 0 && (
+            <div className="mb-4 flex justify-end">
+              <div className="inline-flex rounded-lg border border-gray-300 bg-white p-1">
+                <button
+                  onClick={() => setGroupMode('status')}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    groupMode === 'status'
+                      ? 'bg-primary-600 text-white'
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  ステータス別
+                </button>
+                <button
+                  onClick={() => setGroupMode('category')}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    groupMode === 'category'
+                      ? 'bg-primary-600 text-white'
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  <LayoutGrid size={16} className="inline mr-1" />
+                  カテゴリ別
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* 本一覧 */}
           {books.length === 0 ? (
             <div className="text-center py-12 bg-white/50 rounded-2xl">
               <BookOpen size={48} className="mx-auto text-gray-300 mb-3" />
               <p className="text-gray-500">本が見つかりません</p>
+            </div>
+          ) : showGroupToggle ? (
+            <div className="space-y-10">
+              {groupOrder.map((groupKey) => {
+                const groupBooks = groupedBooks[groupKey as string]
+                if (!groupBooks || groupBooks.length === 0) return null
+
+                const label =
+                  groupMode === 'status'
+                    ? statusConfig[groupKey as BookStatus]?.label
+                    : categoryLabels[groupKey as BookCategory]
+                const emoji =
+                  groupMode === 'status'
+                    ? statusConfig[groupKey as BookStatus]?.emoji
+                    : categoryEmojis[groupKey as BookCategory]
+
+                return (
+                  <section key={groupKey} className="animate-slide-up">
+                    <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                      <span className="w-1 h-5 bg-gradient-to-b from-primary-500 to-purple-500 rounded-full"></span>
+                      <span>{emoji}</span>
+                      {label}
+                      <span className="ml-1 text-sm font-normal text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                        {groupBooks.length}冊
+                      </span>
+                    </h2>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                      {groupBooks.map((book) => (
+                        <BookCard key={book.id} book={book} viewMode="grid" />
+                      ))}
+                    </div>
+                  </section>
+                )
+              })}
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
