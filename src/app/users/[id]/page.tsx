@@ -23,7 +23,7 @@ export default function UserProfilePage() {
   // フィルタ
   const [status, setStatus] = useState('ALL')
   const [category, setCategory] = useState('ALL')
-  const [groupMode, setGroupMode] = useState<'status' | 'category'>('status')
+  const [groupMode, setGroupMode] = useState<'status' | 'category'>('category')
 
   // グループ化とソート順の定義
   const statusConfig = useMemo<Record<BookStatus, { label: string; emoji: string }>>(
