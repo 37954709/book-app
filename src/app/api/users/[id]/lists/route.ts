@@ -51,7 +51,7 @@ export async function GET(
     const sort = searchParams.get('sort') || 'createdAt'
     const order = searchParams.get('order') || 'desc'
     const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '20')
+    const limit = parseInt(searchParams.get('limit') || '1000')
     const skip = (page - 1) * limit
 
     // フィルタ条件
